@@ -9,7 +9,9 @@ IoT tracker simulation for perishable food transport - monitors GPS, temperature
 - Ezra Kufazvineyi
 - Nust Email: n02531364l@students.nust.ac.zw
 - Tonderai Tevera
-- Nust email :n02530022R@students.nust.ac.zw  
+- Nust email :n02530022R@students.nust.ac.zw
+- Rasheed Phiri
+- Nust email :N02530037H@students.nust.ac.zw
 
 ## System Specifications
 - OS: Ubuntu 22.04 (The Construct Rosject)
