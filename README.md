@@ -1,84 +1,73 @@
-# Agri-Logistix Tracker Simulation
+# Agri-Logistix Tracker
 
-## Project
-IoT tracker simulation for perishable food transport - monitors GPS, temperature, humidity, door events, and battery in real time.
+## Project Overview
+
+Agri-Logistix Tracker is an IoT prototype for monitoring the transport conditions of perishable agricultural products. The project focuses on tracking cargo location and monitoring temperature, humidity, door status, and tracker battery level.
+
+The prototype work demonstrated by the team uses a **Node-RED dashboard and flow** for monitoring and alert presentation. The repository also contains Python/ROS 2 tracker code as a development scaffold; the presence of that code does not mean a Gazebo simulation or physical GPS deployment was completed.
 
 ## Team
+
 - Anesu Mugweni
 - NUST Email: n02530952v@students.nust.ac.zw
 - Ezra Kufazvineyi
-- Nust Email: n02531364l@students.nust.ac.zw
+- NUST Email: n02531364l@students.nust.ac.zw
 - Tonderai Tevera
-- Nust email :n02530022R@students.nust.ac.zw
+- NUST Email: n02530022R@students.nust.ac.zw
 - Rasheed Phiri
-- Nust email :N02530037H@students.nust.ac.zw
+- NUST Email: N02530037H@students.nust.ac.zw
 - Anotida Chimhandamba
-- Nust email :n02529595c@students.nust.ac.zw
+- NUST Email: n02529595c@students.nust.ac.zw
 - Malvin Borerwe
-- Nust email :n02528964h@students.nust.ac.zw
+- NUST Email: n02528964h@students.nust.ac.zw
 
-## System Specifications
-- OS: Ubuntu 22.04 (The Construct Rosject)
-- ROS2 Version: Humble Hawksbill
-- Language: Python 3.10
-- Simulation: Gazebo (available)
+## Prototype Monitoring
 
-## Installation Instructions
+The Node-RED dashboard is used to present monitoring information and alerts for the prototype.
 
-The project runs inside The Construct cloud ROS2 environment with ROS2 Humble pre-installed.
-
-To replicate on Ubuntu 22.04 with ROS2 Humble:
-
-sudo apt update
-sudo apt install -y ros-humble-desktop
-source /opt/ros/humble/setup.bash
-
-## Execution Instructions
-
-### 1. Build the workspace
-cd ~/ros2_ws
-colcon build
-source install/setup.bash
-
-### 2. Run the tracker node - Terminal 1
-source ~/ros2_ws/install/setup.bash
-ros2 run agri_tracker tracker_node
-
-### 3. Run the alert node - Terminal 2
-source ~/ros2_ws/install/setup.bash
-ros2 run agri_tracker alert_node
-
-### 4. Monitor alerts - Terminal 3
-source ~/ros2_ws/install/setup.bash
-ros2 topic echo /agri/alerts
-
-## ROS2 Topics Published
-
-- /agri/location - GPS coordinates
-- /agri/temperature - Cargo temperature - safe 5-12C
-- /agri/humidity - Cargo humidity - safe 60-90 percent
-- /agri/door - Door state OPEN or CLOSED
-- /agri/battery - Tracker battery level
-- /agri/alerts - Generated alerts
-
-## Alert Conditions
-
-- Temperature outside 5-12C range - HIGH severity
-- Humidity outside 60-90 percent range - MEDIUM severity
-- Door opened during transit - HIGH severity
-- Battery below 20 percent - MEDIUM severity
-
-## Project Structure
-
-agri_tracker/
-  agri_tracker/
-    __init__.py
-    tracker_node.py
-    alert_node.py
-  resource/
-  test/
-  package.xml
-  setup.py
-  README.md
-## Node-RED Cloud Dashboard
 ![Node-RED Screenshot](docs/screenshots/nodered.png)
+
+The intended monitoring parameters and alert thresholds are:
+
+| Parameter | Intended safe range / condition | Alert condition |
+|---|---|---|
+| Cargo temperature | 5–12 °C | Below 5 °C or above 12 °C |
+| Cargo humidity | 60–90% | Below 60% or above 90% |
+| Door status | Closed during transit | Door opens during transit |
+| Tracker battery | Above 20% | Below 20% |
+
+The Node-RED flow is responsible for presenting the prototype's monitoring and alert information. Alert history is available through the dashboard flow as configured for the demonstration.
+
+## Repository Contents
+
+- `agri_tracker/`: Python ROS 2 package code, including tracker and alert node files.
+- `resource/`: ROS 2 package resource marker.
+- `test/`: Existing package quality checks.
+- `package.xml` and `setup.py`: ROS 2 package metadata and setup.
+- `docs/screenshots/`: Project dashboard screenshot.
+
+**Implementation note:** The Python/ROS 2 files are retained in the repository as supporting development work. The team demonstration focused on Node-RED. Gazebo simulation and physical GPS hardware should not be treated as completed features.
+
+## Limitations & Future Work
+
+The current system is a prototype. The following limitations and improvements have been identified:
+
+1. **Simulation and environment:** Gazebo simulation was not part of the team's demonstrated implementation. The project demonstration used Node-RED. Any future Gazebo work should include verified setup instructions and correct world-file paths before being documented as operational.
+2. **Real GPS integration:** The current location approach does not establish real-world GPS latitude and longitude from a physical receiver. Future work includes integrating a NEO-6M GPS module to provide actual latitude/longitude coordinates.
+3. **Battery modelling:** The current battery simulation is a placeholder and does not represent measured hardware power consumption. Future iterations should calculate battery usage using realistic power-consumption measurements or a documented battery model.
+4. **Alert handling and history:** The Node-RED flow is used to trigger and display prototype alerts. Future work should strengthen alert handling with timestamps, persistent event history, duplicate-alert suppression, and recovery notifications when readings return to safe ranges.
+5. **Testing:** Testing for the prototype was performed manually by checking outputs in the terminal and on the Node-RED dashboard. Automated functional tests should be added in future iterations to verify sensor thresholds, alert conditions, invalid readings, and end-to-end data flow.
+
+## Future Development
+
+Further development could include:
+
+- Connecting a physical NEO-6M GPS module and environmental sensors.
+- Replacing placeholder battery values with measured power data.
+- Improving alert history, notification handling, and fault detection.
+- Adding automated tests for the monitoring and alert logic.
+- Validating the complete system with physical hardware before deployment.
+
+## Acknowledgement of Prototype Scope
+
+The current deliverable demonstrates a prototype monitoring workflow. It should not be represented as a fully deployed logistics tracker or as a completed physical GPS/Gazebo system. The limitations above describe work required for a more reliable future version.
