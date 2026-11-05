@@ -8,18 +8,14 @@ The prototype work demonstrated by the team uses a **Node-RED dashboard and flow
 
 ## Team
 
-- Anesu Mugweni
-- NUST Email: n02530952v@students.nust.ac.zw
-- Ezra Kufazvineyi
-- NUST Email: n02531364l@students.nust.ac.zw
-- Tonderai Tevera
-- NUST Email: n02530022R@students.nust.ac.zw
-- Rasheed Phiri
-- NUST Email: N02530037H@students.nust.ac.zw
-- Anotida Chimhandamba
-- NUST Email: n02529595c@students.nust.ac.zw
-- Malvin Borerwe
-- NUST Email: n02528964h@students.nust.ac.zw
+- Anesu Mugweni — NUST Student ID: n02530952v
+- Ezra Kufazvineyi — NUST Student ID: n02531364l
+- Tonderai Tevera — NUST Student ID: n02530022R
+- Rasheed Phiri — NUST Student ID: N02530037H
+- Anotida Chimhandamba — NUST Student ID: n02529595c
+- Malvin Borerwe — NUST Student ID: n02528964h
+- Prince Sanyamandwe — NUST Student ID: N02535292j
+- Makomborero Gufe — NUST Student ID: N02529605W
 
 ## Prototype Monitoring
 
