@@ -80,3 +80,5 @@ agri_tracker/
   package.xml
   setup.py
   README.md
+## Node-RED Cloud Dashboard
+![Node-RED Screenshot](docs/screenshots/nodered.png)
