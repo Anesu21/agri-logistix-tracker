@@ -7,7 +7,7 @@ monitoring simulated or physical transport sensor readings.
 
 1. Install Node-RED and the dashboard/serial packages used by the flow.
 2. Open the Node-RED editor.
-3. Import `flows.json`.
+3. Import `flow.json`.
 4. Configure the serial port for your environment.
    The original Arduino setup uses COM6 at 9600 baud.
 5. Deploy the flow and open the dashboard.

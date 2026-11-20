@@ -1,14 +1,817 @@
 [
-  {"id":"tab-agri","type":"tab","label":"Agri-Logistix Monitor","disabled":false,"info":"Reads newline-delimited JSON from Arduino Uno at 9600 baud. Set the serial device below to the correct COM/tty port."},
-  {"id":"serial-port-uno","type":"serial-port","serialport":"COM3","serialbaud":"9600","databits":"8","parity":"none","stopbits":"1","waitfor":"\\n","dtr":"none","rts":"none","cts":"none","dsr":"none","newline":"\\n","bin":"false","out":"char","addchar":"","responsetimeout":"10000"},
-  {"id":"serial-in-uno","type":"serial in","z":"tab-agri","name":"Arduino Uno JSON (change COM3)","serial":"serial-port-uno","x":160,"y":120,"wires":[["json-parse"]]},
-  {"id":"json-parse","type":"json","z":"tab-agri","name":"Parse sensor JSON","property":"payload","action":"obj","pretty":false,"x":370,"y":120,"wires":[["normalise-alert"]]},
-  {"id":"normalise-alert","type":"function","z":"tab-agri","name":"Validate readings + alert rules","func":"const d = msg.payload || {};\nconst t = Number(d.temp);\nconst h = Number(d.humidity);\nconst sensorOk = d.sensor_ok !== false && d.temp !== null && Number.isFinite(t) && d.humidity !== null && Number.isFinite(h);\nconst door = String(d.door || 'UNKNOWN').toUpperCase();\nconst reasons = [];\nif (!sensorOk) reasons.push('Sensor read error');\nif (sensorOk && (t > 12 || t < 5)) reasons.push('Temperature outside 5–12 °C');\nif (door === 'OPEN') reasons.push('Door is OPEN');\nconst active = reasons.length > 0;\nconst tempMsg = {payload: sensorOk ? t : 0};\nconst humidityMsg = {payload: sensorOk ? h.toFixed(1) + ' %' : 'Sensor error'};\nconst doorMsg = {payload: door};\nconst alertMsg = {payload: {active, message: active ? 'ALERT: ' + reasons.join(' | ') : 'NORMAL - conditions within limits'}};\nreturn [tempMsg, humidityMsg, doorMsg, alertMsg];","outputs":4,"noerr":0,"initialize":"","finalize":"","libs":[],"x":630,"y":120,"wires":[["temp-gauge"],["humidity-text"],["door-text"],["alert-template"]]},
-  {"id":"ui-tab-agri","type":"ui_tab","name":"Agri-Logistix","icon":"dashboard","disabled":false,"hidden":false},
-  {"id":"ui-group-status","type":"ui_group","name":"Live Cargo Status","tab":"ui-tab-agri","order":1,"disp":true,"width":"12","collapse":false,"className":""},
-  {"id":"temp-gauge","type":"ui_gauge","z":"tab-agri","name":"Cargo temperature","group":"ui-group-status","order":1,"width":6,"height":4,"gtype":"gage","title":"Temperature","label":"°C","format":"{{value}}","min":0,"max":"40","colors":["#00b500","#e6e600","#ca3838"],"seg1":"5","seg2":"12","x":900,"y":80,"wires":[]},
-  {"id":"humidity-text","type":"ui_text","z":"tab-agri","group":"ui-group-status","order":2,"width":6,"height":1,"name":"Humidity","label":"Humidity","format":"{{msg.payload}}","layout":"row-spread","x":900,"y":140,"wires":[]},
-  {"id":"door-text","type":"ui_text","z":"tab-agri","group":"ui-group-status","order":3,"width":6,"height":1,"name":"Door state","label":"Door","format":"{{msg.payload}}","layout":"row-spread","x":900,"y":200,"wires":[]},
-  {"id":"alert-template","type":"ui_template","z":"tab-agri","group":"ui-group-status","name":"Alert indicator","order":4,"width":12,"height":2,"format":"<div style=\"padding:14px;text-align:center;font-weight:bold;color:#fff;border-radius:6px;background:{{msg.payload.active ? '#c62828' : '#2e7d32'}}\">{{msg.payload.message}}</div>","storeOutMessages":true,"fwdInMessages":true,"resendOnRefresh":true,"templateScope":"local","x":900,"y":260,"wires":[[]]},
-  {"id":"demo-inject","type":"inject","z":"tab-agri","name":"Manual demo sample (not live sensor data)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"{\"temp\":13.4,\"humidity\":72.0,\"door\":\"CLOSED\",\"sensor_ok\":true}","payloadType":"json","x":210,"y":260,"wires":[["normalise-alert"]]}
+  {
+    "id": "e881198af53dfdc6",
+    "type": "tab",
+    "label": "Flow 1",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "9c3a957549807acb",
+    "type": "serial-port",
+    "name": "",
+    "serialport": "COM6",
+    "serialbaud": "9600",
+    "databits": 8,
+    "parity": "none",
+    "stopbits": 1,
+    "waitfor": "",
+    "dtr": "none",
+    "rts": "none",
+    "cts": "none",
+    "dsr": "none",
+    "newline": "\\n",
+    "bin": "false",
+    "out": "char",
+    "addchar": "STRING",
+    "responsetimeout": 10000
+  },
+  {
+    "id": "ed6e392bb6a64701",
+    "type": "ui-base",
+    "name": "My Dashboard",
+    "path": "/dashboard",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default",
+    "showReconnectNotification": true,
+    "notificationDisplayTime": 1,
+    "showDisconnectNotification": true,
+    "allowInstall": false
+  },
+  {
+    "id": "28c662c1c27b1ae3",
+    "type": "ui-theme",
+    "name": "Default Theme",
+    "colors": {
+      "surface": "#fcfcfd",
+      "primary": "#0d74ce",
+      "bgPage": "#f9f9fb",
+      "groupBg": "#ffffff",
+      "groupOutline": "#d9d9e0"
+    },
+    "sizes": {
+      "density": "default",
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "4px",
+      "widgetGap": "12px"
+    }
+  },
+  {
+    "id": "1ad3902aa73dcd11",
+    "type": "ui-page",
+    "name": "Page 1",
+    "ui": "ed6e392bb6a64701",
+    "path": "/page1",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "28c662c1c27b1ae3",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": 0,
+        "cols": 3
+      },
+      {
+        "name": "Tablet",
+        "px": 576,
+        "cols": 6
+      },
+      {
+        "name": "Small Desktop",
+        "px": 768,
+        "cols": 9
+      },
+      {
+        "name": "Desktop",
+        "px": 1024,
+        "cols": 12
+      }
+    ],
+    "tabs": [],
+    "order": 1,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "87f74efccbd6ec0c",
+    "type": "ui-group",
+    "name": "Group 1",
+    "page": "1ad3902aa73dcd11",
+    "width": 6,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default",
+    "keepLoaded": false,
+    "tab": ""
+  },
+  {
+    "id": "feba52347727fe83",
+    "type": "serial in",
+    "z": "e881198af53dfdc6",
+    "name": "",
+    "serial": "9c3a957549807acb",
+    "x": 570,
+    "y": 260,
+    "wires": [
+      [
+        "db0d705d663386d4",
+        "agri_json_parser"
+      ]
+    ]
+  },
+  {
+    "id": "db0d705d663386d4",
+    "type": "debug",
+    "z": "e881198af53dfdc6",
+    "name": "debug 1",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 640,
+    "y": 380,
+    "wires": []
+  },
+  {
+    "id": "e1e3454bf7d6641f",
+    "type": "ui-gauge",
+    "z": "e881198af53dfdc6",
+    "name": "Temperature",
+    "group": "87f74efccbd6ec0c",
+    "order": 6,
+    "value": "payload",
+    "valueType": "msg",
+    "width": 3,
+    "height": 3,
+    "gtype": "gauge-34",
+    "gstyle": "needle",
+    "title": "Temperature",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "'C",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": "0",
+        "color": "#5cd65c",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": "4",
+        "color": "#ffc800",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": "7",
+        "color": "#ea5353",
+        "text": "",
+        "textType": "label"
+      }
+    ],
+    "min": 0,
+    "max": "50",
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 410,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d4b462908a5f77a1",
+    "type": "ui-gauge",
+    "z": "e881198af53dfdc6",
+    "name": "Humidity gauge",
+    "group": "87f74efccbd6ec0c",
+    "order": 5,
+    "value": "payload",
+    "valueType": "msg",
+    "width": 3,
+    "height": 3,
+    "gtype": "gauge-34",
+    "gstyle": "needle",
+    "title": "Humidity",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": "0",
+        "color": "#5cd65c",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": "4",
+        "color": "#ffc800",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": "7",
+        "color": "#ea5353",
+        "text": "",
+        "textType": "label"
+      }
+    ],
+    "min": 0,
+    "max": "100",
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 420,
+    "y": 880,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "cb4c543a1bbedb5f",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Test Temperature",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "25",
+    "payloadType": "num",
+    "x": 160,
+    "y": 380,
+    "wires": [
+      [
+        "e1e3454bf7d6641f",
+        "ed0e87dbc38ad557"
+      ]
+    ]
+  },
+  {
+    "id": "d286f5889ef0cf6f",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Test Humidity",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "65",
+    "payloadType": "num",
+    "x": 170,
+    "y": 880,
+    "wires": [
+      [
+        "d4b462908a5f77a1"
+      ]
+    ]
+  },
+  {
+    "id": "e89c172c2bf342a7",
+    "type": "ui-text",
+    "z": "e881198af53dfdc6",
+    "group": "87f74efccbd6ec0c",
+    "order": 4,
+    "width": 0,
+    "height": 0,
+    "name": "Door Status",
+    "label": "Door Status",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 330,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "3b59e656a1897c15",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Door Open",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "OPEN",
+    "payloadType": "str",
+    "x": 160,
+    "y": 240,
+    "wires": [
+      [
+        "e89c172c2bf342a7"
+      ]
+    ]
+  },
+  {
+    "id": "57cbaa03abbd05f2",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Door Closed",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "CLOSED",
+    "payloadType": "str",
+    "x": 150,
+    "y": 300,
+    "wires": [
+      [
+        "e89c172c2bf342a7"
+      ]
+    ]
+  },
+  {
+    "id": "ed0e87dbc38ad557",
+    "type": "switch",
+    "z": "e881198af53dfdc6",
+    "name": "Temperature alert",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "gt",
+        "v": "12",
+        "vt": "num"
+      },
+      {
+        "t": "lt",
+        "v": "5",
+        "vt": "num"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "false",
+    "repair": false,
+    "outputs": 3,
+    "x": 190,
+    "y": 480,
+    "wires": [
+      [
+        "5452cfec8bf704e2"
+      ],
+      [
+        "agri_temperature_too_cold"
+      ],
+      [
+        "e92b95657d1328f4"
+      ]
+    ]
+  },
+  {
+    "id": "5452cfec8bf704e2",
+    "type": "change",
+    "z": "e881198af53dfdc6",
+    "name": "TOO HOT",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "TOO HOT",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 410,
+    "y": 480,
+    "wires": [
+      [
+        "94530ae7c0f998a0"
+      ]
+    ]
+  },
+  {
+    "id": "e92b95657d1328f4",
+    "type": "change",
+    "z": "e881198af53dfdc6",
+    "name": "NORMAL",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "NORMAL",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 420,
+    "y": 540,
+    "wires": [
+      [
+        "94530ae7c0f998a0"
+      ]
+    ]
+  },
+  {
+    "id": "94530ae7c0f998a0",
+    "type": "ui-text",
+    "z": "e881198af53dfdc6",
+    "group": "87f74efccbd6ec0c",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "name": "Temperature Alert",
+    "label": "Temperature Alert",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 630,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "ba394cceb64d7aa2",
+    "type": "ui-gauge",
+    "z": "e881198af53dfdc6",
+    "name": "Battery Gauge",
+    "group": "87f74efccbd6ec0c",
+    "order": 2,
+    "value": "payload",
+    "valueType": "msg",
+    "width": 3,
+    "height": 3,
+    "gtype": "gauge-34",
+    "gstyle": "needle",
+    "title": "Battery Level",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": "0",
+        "color": "#5cd65c",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": "4",
+        "color": "#ffc800",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": "7",
+        "color": "#ea5353",
+        "text": "",
+        "textType": "label"
+      }
+    ],
+    "min": 0,
+    "max": "100",
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 440,
+    "y": 620,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "620a7670f6e2ef58",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Test Battery",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "85",
+    "payloadType": "num",
+    "x": 170,
+    "y": 600,
+    "wires": [
+      [
+        "ba394cceb64d7aa2"
+      ]
+    ]
+  },
+  {
+    "id": "6201aaebe4119ccc",
+    "type": "ui-text",
+    "z": "e881198af53dfdc6",
+    "group": "87f74efccbd6ec0c",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "name": "Connection Status",
+    "label": "Tracker Connection",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 430,
+    "y": 700,
+    "wires": []
+  },
+  {
+    "id": "7e10afc5a58817d3",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Tracker Offline",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "DISCONNECTED",
+    "payloadType": "str",
+    "x": 180,
+    "y": 740,
+    "wires": [
+      [
+        "6201aaebe4119ccc"
+      ]
+    ]
+  },
+  {
+    "id": "dac8e876ca69f51b",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Tracker Online",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "CONNECTED",
+    "payloadType": "str",
+    "x": 180,
+    "y": 680,
+    "wires": [
+      [
+        "6201aaebe4119ccc"
+      ]
+    ]
+  },
+  {
+    "id": "60adeecf8b56cfed",
+    "type": "ui-chart",
+    "z": "e881198af53dfdc6",
+    "group": "87f74efccbd6ec0c",
+    "name": "Temperature History",
+    "label": "Temperature History",
+    "order": 9007199254740991,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "",
+    "xAxisProperty": "",
+    "xAxisPropertyType": "timestamp",
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "xmin": "",
+    "xmax": "",
+    "yAxisLabel": "",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "",
+    "ymax": "",
+    "bins": 10,
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "circle",
+    "pointRadius": 4,
+    "showLegend": true,
+    "removeOlder": 1,
+    "removeOlderUnit": "3600",
+    "removeOlderPoints": "",
+    "colors": [
+      "#0095ff",
+      "#ff0000",
+      "#ff7f0e",
+      "#2ca02c",
+      "#a347e1",
+      "#d62728",
+      "#ff9896",
+      "#9467bd",
+      "#c5b0d5"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 6,
+    "height": 8,
+    "className": "",
+    "interpolation": "linear",
+    "x": 460,
+    "y": 780,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "955043d530c37572",
+    "type": "inject",
+    "z": "e881198af53dfdc6",
+    "name": "Test Chart Temperature",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "6",
+    "payloadType": "num",
+    "x": 200,
+    "y": 800,
+    "wires": [
+      [
+        "60adeecf8b56cfed"
+      ]
+    ]
+  },
+  {
+    "id": "agri_json_parser",
+    "type": "json",
+    "z": "e881198af53dfdc6",
+    "name": "Parse Arduino JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "propertyType": "msg",
+    "x": 760,
+    "y": 260,
+    "wires": [
+      [
+        "agri_sensor_router"
+      ]
+    ]
+  },
+  {
+    "id": "agri_sensor_router",
+    "type": "function",
+    "z": "e881198af53dfdc6",
+    "name": "Route Sensor Readings",
+    "func": "const d = msg.payload;\n\nif (!d || typeof d !== \"object\") {\n    node.warn(\"Invalid Arduino JSON payload\");\n    return null;\n}\n\nfunction numericMessage(value, topic) {\n    const n = Number(value);\n    if (value === null || value === undefined ||\n        value === \"\" || !Number.isFinite(n)) {\n        return null;\n    }\n    return { payload: n, topic: topic };\n}\n\nreturn [\n    numericMessage((d.temperature ?? d.temp), \"Temperature\"),\n    numericMessage(d.humidity, \"Humidity\"),\n    d.door !== undefined\n        ? { payload: String(d.door), topic: \"Door\" }\n        : null,\n    numericMessage(d.battery, \"Battery\"),\n    { payload: \"ONLINE\", topic: \"Connection\" }\n];",
+    "outputs": 5,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 960,
+    "y": 260,
+    "wires": [
+      [
+        "e1e3454bf7d6641f",
+        "ed0e87dbc38ad557",
+        "60adeecf8b56cfed"
+      ],
+      [
+        "d4b462908a5f77a1"
+      ],
+      [
+        "e89c172c2bf342a7"
+      ],
+      [
+        "ba394cceb64d7aa2"
+      ],
+      [
+        "6201aaebe4119ccc"
+      ]
+    ]
+  },
+  {
+    "id": "agri_temperature_too_cold",
+    "type": "change",
+    "z": "e881198af53dfdc6",
+    "name": "TOO COLD",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "TOO COLD",
+        "tot": "str"
+      }
+    ],
+    "x": 420,
+    "y": 600,
+    "wires": [
+      [
+        "94530ae7c0f998a0"
+      ]
+    ]
+  }
 ]
